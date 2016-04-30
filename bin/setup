@@ -1,0 +1,29 @@
+#!/bin/bash
+
+source /etc/environment  
+
+[ -f /opt/repo/pid/passenger.pid ] && rm -f /opt/repo/pid/passenger.pid;
+
+[ -f /opt/repo/logrotate ] && { mv /opt/repo/logrotate /etc/logrotate.d/raptor; } 
+
+gem install passenger --pre > /dev/null 2>&1
+gem uninstall passenger -v `gem list|grep passenger|grep -o "4[.0-9]*"` /dev/null 2>&1
+passenger-config install-agent /dev/null 2>&1; 
+passenger-config install-standalone-runtime /dev/null 2>&1;
+passenger-config build-native-support /dev/null 2>&1
+
+[ -f $GEM_HOME/gems/passenger-5.0.0.beta3/lib/phusion_passenger/standalone/start_command/builtin_engine.rb ] && { sed -ib_q 's/ecape/escape/' $GEM_HOME/gems/passenger-5.0.0.beta3/lib/phusion_passenger/standalone/start_command/builtin_engine.rb; }
+
+echo $'source /etc/profile 2>/dev/null\nsource /etc/environment\nsource /usr/lib/rvm/environments/default' >> /opt/repo/.bashrc;
+chown jelastic:jelastic /opt/repo/.bash_profile;
+
+touch /opt/repo/.rvmrc;
+echo "export rvm_ignore_gemsets_flag=1" >> /opt/repo/.rvmrc;
+touch /root/.rvmrc;
+echo "export rvm_ignore_gemsets_flag=1" >> /root/.rvmrc;
+chown jelastic:jelastic /opt/repo/.rvmrc
+rvm rvmrc warning ignore /opt/repo/.rvmrc
+
+service iptables restart > /dev/null;
+
+[ -f /var/www/webroot/ROOT/Gemfile ] && sed -i "/gem 'rails'.*/ s/gem 'rails'.*/gem 'rails'/" /var/www/webroot/ROOT/Gemfile; 

@@ -1,0 +1,71 @@
+#!/bin/bash
+
+. /etc/environment
+export GEM_PATH=$GEM_PATH:/opt/repo/.passenger/
+
+start(){
+  [ -f /opt/repo/pid/passenger.pid ] && echo "Ruby raptor server is already started" && return 0;
+  echo "Starting server... ";
+  cd /var/www/webroot/ROOT;
+  passenger start --daemonize --port 8080 --user jelastic --pid-file=/opt/repo/pid/passenger.pid --log-file /opt/repo/log/passenger.log --environment $(cat /var/lib/jelastic/env) >/dev/null 2>&1;
+}
+
+stop(){
+  [ ! -f /opt/repo/pid/passenger.pid ] && echo "Ruby raptor server is already stopped" && return 0;
+  local tries=15;
+  echo "Stopping server... ";
+  cd /var/www/webroot/ROOT;
+  while [ "$tries" -gt 0 ]
+  do
+        if ! ps aux | grep -v grep | grep -q Passen
+        then break;
+        fi
+        [ $tries -eq 1 ] && { ps aux | grep Passen | awk '{print $2}' | xargs kill -9 > /dev/null 2>&1; rm -f /opt/repo/pid/passenger.pid; return 0; }
+        tries=$(($tries-1));
+        passenger stop --port 8080 --pid-file=/opt/repo/pid/passenger.pid >/dev/null 2>&1;
+        sleep 3;
+  done
+  sleep 2;
+  [ -f /opt/repo/pid/passenger.pid ] && rm -f /opt/repo/pid/passenger.pid;
+}
+
+status() {
+        if [ -f /opt/repo/pid/passenger.pid ]; then
+                echo "Ruby Raptor server is running";
+        else
+                echo "Ruby Raptor server is not running"
+        fi
+}
+
+build(){
+  return 0;
+}
+
+deploy(){
+  return 0;
+}
+
+case "$1" in
+  start)
+    start
+    ;;
+  stop)
+    stop
+    ;;
+  restart|reload)
+    stop
+    start
+    ;;
+  build)
+    build
+    ;;
+  deploy)
+    deploy
+    ;;
+  status)
+    status
+    ;;
+  *)
+      echo $"Usage: cartridge {start|stop|restart|reload|status}"
+    exit 1
+esac

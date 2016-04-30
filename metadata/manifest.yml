@@ -1,0 +1,51 @@
+Name: raptor
+Cartridge-Short-Name: RAPTOR
+Display-Name: RAPTOR
+Description: "raptor"
+Version: 'final'
+License: 'MIT'
+License-Url: 
+Vendor: Phusion
+Cartridge-Version: 1
+Cartridge-Vendor: Jelastic
+Categories:
+  - service
+  - embedded
+Source-Url: https://github.com/jelastic-public-cartridges/openshift-jelastic-ruby-raptor-beta2.git
+Website: http://jelastic.com/
+Help-Topics:
+  "Developer Center": https://jelastic.com
+Cart-Data:
+  - Key: OPENSHIFT_APP_DNS
+    Type: environment
+    Description: "Fully qualified domain name for the application."
+  - Key: OPENSHIFT_APP_NAME
+    Type: environment
+    Description: "Application name"
+  - Key: OPENSHIFT_DATA_DIR
+    Type: environment
+    Description: "Directory to store application data files. Preserved across git-pushes. Not shared across gears."
+  - Key: OPENSHIFT_APP_UUID
+    Type: environment
+    Description: "Unique ID which identified the application. Does not change between gears."
+  - Key: OPENSHIFT_GEAR_UUID
+    Type: environment
+    Description: "Unique ID which identified the gear. This value changes between gears."
+Provides:
+  - ruby-raptor
+Scaling:
+  Min: 3
+  Max: 6
+Endpoints:
+  - Private-IP-Name:   APP_HOST
+    Private-Port-Name: APP_PORT
+    Private-Port:      8080
+    Public-Port-Name:  APP_PROXY_PORT
+  - Private-IP-Name:   APP_HOST_HTTP
+    Private-Port-Name: APP_PORT_HTTP
+    Private-Port:      80
+    Public-Port-Name:  APP_PROXY_HTTP
+  - Private-IP-Name:   APP_HOST_HTTPS
+    Private-Port-Name: APP_PORT_HTTPS
+    Private-Port:      443
+    Public-Port-Name:  APP_PROXY_HTTPS

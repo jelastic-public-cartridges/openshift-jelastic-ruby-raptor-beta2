@@ -1,0 +1,9 @@
+/opt/repo/log/passenger.log {
+    missingok
+    compress
+    delaycompress
+    copytruncate
+    daily
+    rotate 30
+    create 0644 jelastic jelastic
+}
